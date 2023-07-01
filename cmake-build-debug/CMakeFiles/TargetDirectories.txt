@@ -1,0 +1,3 @@
+/cygdrive/c/Users/rocha/Documents/Unifei/Algoritmos e Estruturas de Dados 2/Trabalho 2/cmake-build-debug/CMakeFiles/Trabalho_2.dir
+/cygdrive/c/Users/rocha/Documents/Unifei/Algoritmos e Estruturas de Dados 2/Trabalho 2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/cygdrive/c/Users/rocha/Documents/Unifei/Algoritmos e Estruturas de Dados 2/Trabalho 2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
