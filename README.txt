@@ -1,12 +1,12 @@
-#Árvores B para Simulação de Banco de Dados
+# Árvores B para Simulação de Banco de Dados
 
 Este é um projeto desenvolvido para a disciplina de Algoritmos e Estruturas de Dados II (CTCO02) do curso de Ciência da Computação da UNIFEI. O objetivo deste trabalho é utilizar árvores B para simular um banco de dados na memória RAM e analisar os benefícios dessa estrutura para pesquisa no banco.
 
-##Descrição do Projeto
+## Descrição do Projeto
 
 Neste projeto, utilizamos árvores B como estrutura de dados para armazenar registros de um banco de dados simulado. A implementação das árvores B foi feita em linguagem C e o projeto foi organizado em um repositório do GitHub.
 
-##Objetivos do Projeto
+## Objetivos do Projeto
 
 Os principais objetivos deste projeto são:
 
@@ -14,7 +14,7 @@ Os principais objetivos deste projeto são:
 2. Realizar análises de desempenho para comparar os tempos de pesquisa usando árvores B com outras estruturas de dados.
 3. Gerar um conjunto de dados aleatórios com mais de 10 mil registros para testar a eficiência da estrutura.
 
-##Funcionalidades Implementadas
+## Funcionalidades Implementadas
 
 As principais funcionalidades implementadas neste projeto são:
 
@@ -23,7 +23,7 @@ As principais funcionalidades implementadas neste projeto são:
 3. Remoção de registros da árvore B.
 4. Análise de desempenho para medir os tempos de pesquisa.
 
-##Conjunto de Dados
+## Conjunto de Dados
 
 Para testar a eficiência da estrutura de árvores B, utilizamos um conjunto de dados aleatórios com mais de 10 mil registros. Os registros foram gerados de forma aleatória e representam entradas típicas de um banco de dados.
 
@@ -31,7 +31,7 @@ Para testar a eficiência da estrutura de árvores B, utilizamos um conjunto de 
 
 Para avaliar o desempenho da estrutura de árvores B, realizamos 30 buscas aleatórias no banco de dados simulado. A partir dessas buscas, calculamos a média, o valor máximo e o valor mínimo do tempo gasto.
 
-##Instruções de Uso
+## Instruções de Uso
 
 Para utilizar este projeto, siga as instruções abaixo:
 
@@ -40,7 +40,7 @@ Para utilizar este projeto, siga as instruções abaixo:
 3. Execute o programa gerado, passando o conjunto de dados aleatórios como entrada.
 4. Analise os resultados obtidos, incluindo a média, o valor máximo e o valor mínimo do tempo gasto nas buscas.
 
-##Contribuição
+## Contribuição
 
 Este projeto foi desenvolvido por:
 - BRENO YUKIHIRO HIRAKAWA
