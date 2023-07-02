@@ -3,4 +3,4 @@ project(Trabalho_2 C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(Trabalho_2 main.c)
+add_executable(Trabalho_2 main.c bTree.h bTree.c)
