@@ -43,13 +43,13 @@ Para utilizar este projeto, siga as instruções abaixo:
 ## Contribuição
 
 Este projeto foi desenvolvido por:
-- BRENO YUKIHIRO HIRAKAWA (@BrenoHirakawa)
-- FELIPE ALVES GREGORIO (@flp-gregorio)
-- LEANDRO ROCHA LIBERATO GONCALVES (@LeandroRochAlg)
-- NICOLAS DE SOUZA MOREIRA (@NicolasSouzaM)
-- PEDRO LUIZ DE FREITAS SILVA (@IamPedrin)
+- BRENO YUKIHIRO HIRAKAWA **(@BrenoHirakawa)**
+- FELIPE ALVES GREGORIO **(@flp-gregorio)**
+- LEANDRO ROCHA LIBERATO GONCALVES **(@LeandroRochAlg)**
+- NICOLAS DE SOUZA MOREIRA **(@NicolasSouzaM)**
+- PEDRO LUIZ DE FREITAS SILVA **(@IamPedrin)**
 Se você deseja contribuir para este projeto, sinta-se à vontade para enviar pull requests ou abrir issues no repositório do GitHub.
 
 
 
-Esperamos que este projeto possa fornecer insights valiosos sobre o uso de árvores B para pesquisa em bancos de dados na memória RAM. Agradecemos pelo interesse e pela contribuição para o desenvolvimento deste trabalho.
+*Esperamos que este projeto possa fornecer insights valiosos sobre o uso de árvores B para pesquisa em bancos de dados na memória RAM. Agradecemos pelo interesse e pela contribuição para o desenvolvimento deste trabalho.*
