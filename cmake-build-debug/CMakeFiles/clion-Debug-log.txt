@@ -1,4 +1,0 @@
-C:\Users\rocha\AppData\Local\JetBrains\CLion2022.3\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/cygdrive/c/Program Files/JetBrains/CLion 2022.3.3/bin/ninja/cygwin/x64/ninja.exe" -G Ninja -S "/cygdrive/c/Users/rocha/Documents/Unifei/Algoritmos e Estruturas de Dados 2/Trabalho 2" -B "/cygdrive/c/Users/rocha/Documents/Unifei/Algoritmos e Estruturas de Dados 2/Trabalho 2/cmake-build-debug"
--- Configuring done
--- Generating done
--- Build files have been written to: /cygdrive/c/Users/rocha/Documents/Unifei/Algoritmos e Estruturas de Dados 2/Trabalho 2/cmake-build-debug
