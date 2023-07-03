@@ -9,14 +9,22 @@ int main() {
     char nomeArquivo[30];
     int opcao, matricula, ordem, teste, busca;
     struct timeval inicio, fim;
-    long menorTempoArv = 1000, maiorTempoArv = -1, tempoTotalArv, tempo;
-    long menorTempoArq = 1000, maiorTempoArq = -1, tempoTotalArq;
+    long menorTempoArv = 1000000, maiorTempoArv = -1, tempoTotalArv, tempo;
+    long menorTempoArq = 1000000, maiorTempoArq = -1, tempoTotalArq;
     float tempoMedioArv, tempoMedioArq;
 
     gerarRegistros();
 
-    printf("Informe a ordem da B-Tree: ");
-    scanf("%d", &ordem);
+    while(1) {
+        printf("Informe a ordem da B-Tree (3 a 15): ");
+        scanf("%d", &ordem);
+
+        if (ordem <= 15 && ordem >= 3) {
+            break;
+        } else {
+            printf("Ordem invalida!\n");
+        }
+    }
 
     no *raiz = NULL;
 
