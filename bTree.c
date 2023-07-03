@@ -32,7 +32,7 @@ struct bt {
 // Função para ler os registros do arquivo e salvar na B-tree em memória
 void lerRegistros(bt *arv, char *nomeArquivo) {
     FILE *arquivo;
-    struct registro *reg;
+    struct registro *reg = malloc(sizeof(struct registro));
     int matricula;
     char nome[50], dataNascimento[11], email[50];
 
@@ -52,6 +52,7 @@ void lerRegistros(bt *arv, char *nomeArquivo) {
         insereElemento(arv, matricula, reg);
     }
 
+    free(reg);
     fclose(arquivo);
     printf("Registros lidos com sucesso e salvos na B-tree em memória.\n");
 }
@@ -225,45 +226,29 @@ no* alocaNo(int ordem) {
 //Função que aloca e inicializa uma nova árvore com uma raiz alocada, porém vazia.
 //Árvore B tradicional. A ordem m deve ser sempre par. Caso contrário, retorna NULL.
 bt* criaArvore(int m) {
+    bt* arvore = (bt*) malloc(sizeof(bt));
 
-	// Verifica se a ordem é par
-	// através do resto da divisão
-	// Se o resto da divisão for zero,
-	// significa que a ordem é par
-    if (m % 2 == 0) {
-
-		// Cria a árvore
-        bt* arvore = (bt*) malloc(sizeof(bt));
-
-		// Verificação de erro
-        if (arvore == NULL) {
-            return NULL;
-			
-        }
-
-		// Define a ordem da árvore
-        arvore->ordem = m;
-
-		// Aloca um novo nó que será
-		// a raiz da árvore
-        arvore->raiz = alocaNo(m);
-
-		// Verificação de erro
-        if (arvore->raiz == NULL) {
-            return NULL;
-			
-        }
-
-		// Retorna a árvore
-        return arvore;
-
-	// Caso o resto da divisão seja diferente
-	// de zero, deve retornar NULL
-    } else {
+    // Verificação de erro
+    if (arvore == NULL) {
         return NULL;
-		
+
     }
 
+    // Define a ordem da árvore
+    arvore->ordem = m;
+
+    // Aloca um novo nó que será
+    // a raiz da árvore
+    arvore->raiz = alocaNo(m);
+
+    // Verificação de erro
+    if (arvore->raiz == NULL) {
+        return NULL;
+
+    }
+
+    // Retorna a árvore
+    return arvore;
 }
 
 
@@ -321,88 +306,67 @@ no* buscaElemento(no* atual, int valor) {
 
 }
 
-
-//Função que insere um novo elemento na árvore.
-//Encontra a folha correta, realiza a inserção em árvore B tradicional
-//Ou seja, se a folha estiver cheia, primeiro realiza o split e depois insere
-//Se houve a inserção, retorna 1. Caso contrário, retorna -1
 int insereElemento(bt* arvore, int valor, struct registro* reg) {
-    
-	// Define um ponteiro para
-	// a raiz da árvore
-	no* aux = arvore->raiz;
+    // Define um ponteiro para
+    // a raiz da árvore
+    no* aux = arvore->raiz;
 
-	// Variável usada para
-	// armazenar a quantidade
-	// de elementos
-	int qtd = aux->ocupacao;
+    // Variável usada para
+    // armazenar a quantidade
+    // de elementos
+    int qtd = aux->ocupacao;
 
-	// Variável usada para
-	// armazenar a ordem
-	int ord = arvore->ordem - 1;
+    // Variável usada para
+    // armazenar a ordem
+    int ord = arvore->ordem - 1;
 
     // Verifica se o ponteiro inicial
     // é diferente de NULL e se a quantidade
-    // de elementos é menor do que a ordem
+    // de elementos é menor ou igual à ordem
     // da árvore
-    if ((aux->ponteiros[0] == NULL) && (ord > qtd)) {
-
-	    // Enquanto a quantidade de elementos
-		// for menor que a ordem, compara o
+    if ((aux->ponteiros[0] == NULL) && (ord >= qtd)) {
+        // Enquanto a quantidade de elementos
+        // for menor ou igual à ordem, compara o
         // valor passado como parâmetro
-        while (ord > qtd) {
-			
+        while (ord >= qtd) {
             // Encontra o lugar onde deve
             // ser realizada a inserção
             if (aux->registros[qtd].matricula > valor) {
                 aux->registros[qtd] = *reg;
                 aux->ocupacao++;
                 return 1;
-
             }
-
-			// Incrementa a ocupação
+            // Incrementa a ocupação
             qtd++;
-			
         }
-
-
     } else {
-
         // Percorre enquanto o nó
         // não for um nó folha
         while (aux->folha == 0) {
-            
             // Variável para
             // auxiliar na busca
             int cont = 0;
-
-            // Enquanto o contador for menor do que 
+            // Enquanto o contador for menor do que
             // a ocupação do nó e o valor passado
             // como parâmetro for maior ou igual
             // ao valor das chaves do nó
-			while ((valor > aux->registros[cont].matricula) && (aux->ocupacao > cont)) {
+            while ((valor > aux->registros[cont].matricula) && (aux->ocupacao > cont)) {
                 cont++;
-
             }
-
             aux = aux->ponteiros[cont];
-
         }
-
     }
 
     // Verifica se a ocupação
-    // do nó é igual a ordem,
+    // do nó é igual à ordem,
     // se verdade, executa o split
     if (aux->ocupacao == ord) {
         aux = split(arvore, aux, valor);
-
     }
 
-	// "Reseta" a variável usada para
-	// armazenar a quantidade
-	// de elementos
+    // "Reseta" a variável usada para
+    // armazenar a quantidade
+    // de elementos
     qtd = aux->ocupacao;
 
     // Percorre o vetor de chaves
@@ -410,11 +374,10 @@ int insereElemento(bt* arvore, int valor, struct registro* reg) {
     while ((aux->registros[qtd - 1].matricula > valor) && (qtd > 0)) {
         aux->registros[qtd] = aux->registros[qtd - 1];
         qtd--;
-    
     }
 
     // Atribui o parâmetro
-    // valor a posição qtd
+    // valor à posição qtd
     // do vetor de chaves
     // do nó atual
     aux->registros[qtd].matricula = valor;
@@ -425,9 +388,7 @@ int insereElemento(bt* arvore, int valor, struct registro* reg) {
     // Se a inserção for
     // bem sucedida, retorna 1
     return 1;
-
 }
-
 
 //Função que realiza o split no noDesbal. A variável valor guarda o elemento que está sendo inserido (e que causou o split)
 //Função chamada pela função insereElemento
@@ -973,4 +934,23 @@ no* merge(no* noDesbal, int posPai) {
 
 no* getRaiz(bt *tree){
     return tree->raiz;
+}
+
+void buscarRegistro(int matricula) {
+    FILE *arquivo;
+    registro registro;
+
+    arquivo = fopen("registros.txt", "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de registros.\n");
+        return;
+    }
+
+    while (fscanf(arquivo, "%d;%[^;];%[^;];%[^\n]\n", &registro.matricula, registro.nome, registro.dataNascimento, registro.email) == 4) {
+        if (registro.matricula == matricula) {
+            break;
+        }
+    }
+
+    fclose(arquivo);
 }

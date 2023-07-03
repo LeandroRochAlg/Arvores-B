@@ -67,4 +67,6 @@ void gerarDataNascimento(char *dataNascimento);
 
 void gerarEmail(char *email);
 
+void buscarRegistro(int matricula);
+
 #endif //LISTA_9_BTREE_H
