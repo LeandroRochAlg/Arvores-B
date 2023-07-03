@@ -1,34 +1,14 @@
-/*
-
-        Instituto de Matemática e Computação - Universidade Federal de Itajubá
-   (UNIFEI)
-
-        [DISCIPLINA]
-        Algoritmo e Estrutura de Dados II
-        Profa. Vanessa Souza
-
-        [ASSUNTO]
-    	Árvore B
-
-        [DATA]
-        18/07/2022
-
-        [ALUNOS]
-        Matheus Luz de Faria (2020032426)
-        Thais Danieli Branco de Souza (2021001228)
-
-*/
-
-
 // <-- Bibliotecas e extensões -->
 #include <stdio.h>
 #include <stdlib.h>
-#include "btree.h"
-
+#include <string.h>
+#include <time.h>
+#include "bTree.h"
 
 // <-- Estrutura do nó -->
 struct no {
     int* chaves;
+    registro* registros;
     no** ponteiros;
     no* pai;
     int folha;
@@ -36,14 +16,161 @@ struct no {
 
 };
 
-
-// <-- Estrutura da árvore -->
-struct btree {
-    int ordem;
-    no* raiz;
-
+struct registro {
+    int matricula;
+    char nome[50];
+    char dataNascimento[11];
+    char email[50];
 };
 
+// <-- Estrutura da árvore -->
+struct bt {
+    int ordem;
+    no* raiz;
+};
+
+// Função para ler os registros do arquivo e salvar na B-tree em memória
+void lerRegistros(bt *arv, char *nomeArquivo) {
+    FILE *arquivo;
+    struct registro *reg;
+    int matricula;
+    char nome[50], dataNascimento[11], email[50];
+
+    arquivo = fopen(nomeArquivo, "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de registros.\n");
+        return;
+    }
+
+    while (fscanf(arquivo, "%d;%[^;];%[^;];%[^\n]\n", &matricula, nome, dataNascimento, email) == 4) {
+        reg->matricula = matricula;
+        strcpy(reg->nome, nome);
+        strcpy(reg->dataNascimento, dataNascimento);
+        strcpy(reg->email, email);
+
+        // Salvar o registro na B-tree em memória
+        insereElemento(arv, matricula, reg);
+    }
+
+    fclose(arquivo);
+    printf("Registros lidos com sucesso e salvos na B-tree em memória.\n");
+}
+
+// Função para gerar e salvar os registros no arquivo
+void gerarRegistros() {
+    FILE *arquivo;
+    int matriculas[10000];
+    int matricula, i;
+    char dataNascimento[11], email[50], nome[50];
+
+    arquivo = fopen("registros.txt", "w");
+    if (arquivo == NULL) {
+        printf("Erro ao criar o arquivo de registros.\n");
+        return;
+    }
+
+    srand(time(NULL));
+
+    for (i = 0; i < 10000; i++) {
+        matricula = gerarMatriculaUnica(matriculas, i);
+        matriculas[i] = matricula;
+
+        gerarNome(nome);
+        gerarDataNascimento(dataNascimento);
+        gerarEmail(email);
+
+        fprintf(arquivo, "%d;%s;%s;%s\n", matricula, nome, dataNascimento, email);
+    }
+
+    fclose(arquivo);
+    printf("Registros gerados com sucesso e salvos no arquivo 'registros.txt'.\n");
+}
+
+// Função para gerar uma matrícula única
+int gerarMatriculaUnica(int *matriculas, int n) {
+    int matricula;
+
+    do {
+        matricula = rand() % 1000000 + 1;
+    } while (buscaMatricula(matriculas, n, matricula) != -1);
+
+    return matricula;
+}
+
+// Função para buscar uma matrícula no vetor de matrículas
+int buscaMatricula(int *matriculas, int n, int matricula) {
+    int i;
+    for (i = 0; i < n; i++) {
+        if (matriculas[i] == matricula) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Função para gerar um nome aleatório
+void gerarNome(char *nome) {
+    char *nomes[107] = {"Joao", "Maria", "Jose", "Ana", "Pedro", "Paulo", "Carlos", "Marcos", "Lucas", "Mateus",
+                        "Ana Paula", "Ana Maria", "Ana Julia", "Ana Luiza", "Ana Beatriz", "Ana Carolina", "Ana Clara",
+                        "Ana Laura", "Ana Livia","João", "João Pedro", "João Lucas", "João Gabriel", "João Miguel",
+                        "João Vitor", "João Guilherme", "João Victor", "João Paulo","João Miguel", "João Pedro",
+                        "João Gabriel", "João Vitor", "João Guilherme", "João Victor", "João Paulo", "João Miguel",
+                        "Felipe", "Rafaela", "Leandro", "Leticia", "Gabriel", "Gustavo", "Guilherme", "Rafael",
+                        "Lucas", "Matheus", "Nicolas", "Pedro Henrique", "Ryan", "Enzo", "Vitor", "Victor",
+                        "Douglas", "Eduardo", "Erick", "Fernando", "Filipe", "Francisco", "Frederico", "Giovane",
+                        "Antônio", "Luiza", "Luisa", "Luna", "Maitê", "Manuela", "Marcela", "Maria", "Maria Alice",
+                        "Maria Cecília", "Maria Clara", "Maria Eduarda", "Maria Fernanda", "Maria Flor", "Maria Helena",
+                        "Caio", "Kaio", "Raffaela", "Raffael", "Breno", "Alejandro", "Raphael", "Vanessa", "Wanessa",
+                        "Juliana", "Julia", "Julio", "Julio Cesar", "Julio Cezar", "Julio César", "Julio Cézar","Roberto",
+                        "Roberta", "Roberto Carlos", "Marcos", "Marcos Paulo", "Marcos Vinicius", "Marcos Vinnícius", "Vinnícius",
+                        "Vinycius", "Vinnicios", "Diego", "Diogo", "Dagoberto", "Bruno", "Bruna", "Bruno Henrique"};
+    char *sobrenomes[71] = {"Silva", "Santos", "Oliveira", "Souza", "Lima", "Pereira", "Ferreira", "Alves", "Ribeiro",
+                            "Rodrigues", "Costa", "Gomes", "Martins", "Araujo", "Melo", "Barbosa", "Rocha",
+                            "Moreira", "Carvalho", "Santana", "Liberato","Gonçalves", "Cardoso", "Azevedo",
+                            "Teixeira", "Moura", "Cavalcante", "Dias", "Castro", "Campos", "Bezerra",
+                            "Correia", "Fernandes", "Nascimento", "Macedo", "Jesus", "Pinto", "Lopes", "Ramos",
+                            "Souza", "Almeida", "Albuquerque", "Alencar", "Almeida", "Alves", "Amaral", "Amorim",
+                            "Braz", "Camargo", "Teixeira", "Correia", "Coutinho", "Cruz", "Dias", "Duarte",
+                            "Farias", "Galhardo", "Nascimento", "Gomes", "Gonçalves", "Lima", "Lopes", "Macedo",
+                            "Machado", "Marques", "Martins", "Melo", "Mendes", "Moraes", "Moreira", "Grande"};
+
+    strcpy(nome, nomes[rand() % 107]);
+    strcat(nome, " ");
+    strcat(nome, sobrenomes[rand() % 71]);
+}
+
+// Função para gerar uma data de nascimento aleatória
+void gerarDataNascimento(char *dataNascimento) {
+    int dia, mes, ano;
+
+    dia = rand() % 28 + 1;
+    mes = rand() % 12 + 1;
+    ano = rand() % 40 + 1980;
+
+    sprintf(dataNascimento, "%02d/%02d/%04d", dia, mes, ano);
+}
+
+// Função para gerar um e-mail aleatório
+void gerarEmail(char *email) {
+    char dominio[] = "exemplo.com";
+    char letras[] = "abcdefghijklmnopqrstuvwxyz";
+    int i;
+
+    // Gera uma sequência aleatória de 10 letras para o nome do e-mail
+    for (i = 0; i < 10; i++) {
+        email[i] = letras[rand() % 26];
+    }
+
+    email[i++] = '@';
+
+    // Copia o domínio fixo
+    int j = 0;
+    while (dominio[j] != '\0') {
+        email[i++] = dominio[j++];
+    }
+
+    email[i] = '\0';    // Finaliza a string
+}
 
 //Função que aloca e inicializa um novo nó
 no* alocaNo(int ordem) {
@@ -59,10 +186,10 @@ no* alocaNo(int ordem) {
 
 	// Aloca a quantidade de chaves
 	// baseado na ordem
-    novo->chaves = (int*) malloc(sizeof(int) * (ordem - 1));
+    novo->registros = (registro*) malloc(sizeof(registro) * (ordem - 1));
 
 	// Verifica se houve erro
-    if (novo->chaves == NULL) {
+    if (novo->registros == NULL) {
         return NULL;
 	
     }
@@ -97,7 +224,7 @@ no* alocaNo(int ordem) {
 
 //Função que aloca e inicializa uma nova árvore com uma raiz alocada, porém vazia.
 //Árvore B tradicional. A ordem m deve ser sempre par. Caso contrário, retorna NULL.
-btree* criaArvore(int m) {
+bt* criaArvore(int m) {
 
 	// Verifica se a ordem é par
 	// através do resto da divisão
@@ -106,7 +233,7 @@ btree* criaArvore(int m) {
     if (m % 2 == 0) {
 
 		// Cria a árvore
-        btree* arvore = (btree*) malloc(sizeof(btree));
+        bt* arvore = (bt*) malloc(sizeof(bt));
 
 		// Verificação de erro
         if (arvore == NULL) {
@@ -141,66 +268,10 @@ btree* criaArvore(int m) {
 
 
 //Função que retorna a raiz da árvore
-no* retornaRaiz(btree* arvore) {
+no* retornaRaiz(bt* arvore) {
 	return arvore->raiz;
 	
 }
-
-
-//Função recursiva que imprime a árvore por profundidade
-//Raiz, filho da esquerda até chegar na folha. E sobe imprimindo os filhos em sequência
-void imprimeArvore(no* atual, int filho) {
-
-	// Variável auxiliar
-	int i = 0;
-	
-	// Verifica se a árvore está vazia
-	if (atual == NULL) {
-		return;
-	
-	}
-
-	// Variável auxiliar armazena
-	// a quantidade de elementos
-	int aux = atual->ocupacao;
-
-	// Verifica se o nó usado como
-	// parâmetro é folha ou não
-	// quando folha = 1, nó é folha
-    if (atual->folha == 1) {
-
-		// Percorre as chaves do nó
-		// imprimindo uma a uma
-		for (; i < aux; i++) {
-            printf("%d  ", atual->chaves[i]);
-		
-        }
-        printf("\n");
-
-	// Se o nó não for folha
-    } else {
-
-		// Percorre as chaves do nó
-		// imprimindo uma a uma
-        for (; i < aux; i++) {
-            printf("%d  ", atual->chaves[i]);
-		
-        }
-        printf("\n");
-
-		// Percorre os ponteiros do nó
-		// imprimindo um a um
-		i = 0;
-		while (i <= aux) {
-			imprimeArvore(atual->ponteiros[i], i);
-			i++;
-			
-		}
-	
-    }
-
-}
-
 
 //Função recursiva que retorna o nó onde o elemento está na árvore
 no* buscaElemento(no* atual, int valor) {
@@ -224,7 +295,7 @@ no* buscaElemento(no* atual, int valor) {
 	// for menor que a quantidade de elementos e
 	// enquanto o parâmetro valor for maior que
 	// o valor da chave de posição aux
-	while ((atual->chaves[aux] < valor) && (aux < qtd)) {
+	while ((atual->registros[aux].matricula < valor) && (aux < qtd)) {
 		aux++;
 	
 	}
@@ -233,7 +304,7 @@ no* buscaElemento(no* atual, int valor) {
 	// a quantidade de elementos da árvore e
 	// se o parâmetro valor é igual ao valor
 	// da chave de posição aux
-	if ((valor == atual->chaves[aux]) && (aux < qtd)) {
+	if ((valor == atual->registros[aux].matricula) && (aux < qtd)) {
 		return atual;
 	
 	}
@@ -255,7 +326,7 @@ no* buscaElemento(no* atual, int valor) {
 //Encontra a folha correta, realiza a inserção em árvore B tradicional
 //Ou seja, se a folha estiver cheia, primeiro realiza o split e depois insere
 //Se houve a inserção, retorna 1. Caso contrário, retorna -1
-int insereElemento(btree* arvore, int valor) {
+int insereElemento(bt* arvore, int valor, struct registro* reg) {
     
 	// Define um ponteiro para
 	// a raiz da árvore
@@ -283,8 +354,8 @@ int insereElemento(btree* arvore, int valor) {
 			
             // Encontra o lugar onde deve
             // ser realizada a inserção
-            if (aux->chaves[qtd] > valor) {
-                aux->chaves[qtd] = valor;
+            if (aux->registros[qtd].matricula > valor) {
+                aux->registros[qtd] = *reg;
                 aux->ocupacao++;
                 return 1;
 
@@ -310,7 +381,7 @@ int insereElemento(btree* arvore, int valor) {
             // a ocupação do nó e o valor passado
             // como parâmetro for maior ou igual
             // ao valor das chaves do nó
-			while ((valor > aux->chaves[cont]) && (aux->ocupacao > cont)) {
+			while ((valor > aux->registros[cont].matricula) && (aux->ocupacao > cont)) {
                 cont++;
 
             }
@@ -336,8 +407,8 @@ int insereElemento(btree* arvore, int valor) {
 
     // Percorre o vetor de chaves
     // para organizar as posições
-    while ((aux->chaves[qtd - 1] > valor) && (qtd > 0)) {
-        aux->chaves[qtd] = aux->chaves[qtd - 1];
+    while ((aux->registros[qtd - 1].matricula > valor) && (qtd > 0)) {
+        aux->registros[qtd] = aux->registros[qtd - 1];
         qtd--;
     
     }
@@ -346,7 +417,7 @@ int insereElemento(btree* arvore, int valor) {
     // valor a posição qtd
     // do vetor de chaves
     // do nó atual
-    aux->chaves[qtd] = valor;
+    aux->registros[qtd].matricula = valor;
 
     // Incrementa a ocupação
     aux->ocupacao++;
@@ -362,7 +433,7 @@ int insereElemento(btree* arvore, int valor) {
 //Função chamada pela função insereElemento
 //Sempre sobe o elemento do meio para o pai (m é sempre par).
 //Caso o pai esteja cheio, a função se chama recursivamente.
-no* split(btree* arvore, no* noDesbal, int valor) {
+no* split(bt* arvore, no* noDesbal, int valor) {
 
     // Variável para
     // usar como contador
@@ -391,7 +462,7 @@ no* split(btree* arvore, no* noDesbal, int valor) {
     // Variável para armazenar
     // o valor da chave que está
     // no meio da árvore
-    int chave = noDesbal->chaves[(arvore->ordem - 1) / 2];
+    int chave = noDesbal->registros[(arvore->ordem - 1) / 2].matricula;
 
     // Aux recebe meio + 1
     int aux = ((arvore->ordem - 1) / 2) + 1;
@@ -411,7 +482,7 @@ no* split(btree* arvore, no* noDesbal, int valor) {
         // Altera os valores
         // do vetor de chaves
         // do novo nó
-        novo->chaves[i] = noDesbal->chaves[aux];
+        novo->registros[i].matricula = noDesbal->registros[aux].matricula;
 
         // Verifica se o novo nó
         // é uma folha
@@ -471,8 +542,8 @@ no* split(btree* arvore, no* noDesbal, int valor) {
 
         // Percorre o vetor de chaves e ponteiros
         // do nó pai e altera os valores
-        while ((pai->chaves[i - 1] > chave) && (i > 0)) {
-            pai->chaves[i] = pai->chaves[i - 1];
+        while ((pai->registros[i - 1].matricula > chave) && (i > 0)) {
+            pai->registros[i].matricula = pai->registros[i - 1].matricula;
             pai->ponteiros[i + 1] = pai->ponteiros[i];
             i--;
 
@@ -480,7 +551,7 @@ no* split(btree* arvore, no* noDesbal, int valor) {
 
         // Atribui o valor de aux
         // a posição i do vetor de chaves
-        pai->chaves[i] = chave;
+        pai->registros[i].matricula = chave;
 
         // Atribui o valor de novo
         // para a posição i+1 do vetor de ponteiros
@@ -512,7 +583,7 @@ no* split(btree* arvore, no* noDesbal, int valor) {
 
         // Atribui valores
         // ao novo nó
-        raiz->chaves[0] = chave;
+        raiz->registros[0].matricula = chave;
         raiz->pai = NULL;
         raiz->folha = 0;
         raiz->ocupacao++;
@@ -559,7 +630,7 @@ no* split(btree* arvore, no* noDesbal, int valor) {
 //Na remoção por cópia, usar o predecessor
 //No caso de rotação e merge, tentar primeiro o irmão da esquerda e depois o da direita
 //Se houve a remoção, retorna 1. Caso contrário, retorna -1
-int removeElemento(btree* arvore, int valor) {
+int removeElemento(bt* arvore, int valor) {
 
     // Ponteiro usado para buscar
     // o elemento que será removido
@@ -588,9 +659,8 @@ int removeElemento(btree* arvore, int valor) {
         // e o parâmetro valor for maior
         // que o valor armazenado na posição
         // i do vetor de chaves
-        while ((valor > remove->chaves[i]) && (remove->ocupacao > i)) {
+        while ((valor > remove->registros[i].matricula) && (remove->ocupacao > i)) {
              i++;
-
         }
 
         // Variável auxiliar aponta
@@ -608,14 +678,14 @@ int removeElemento(btree* arvore, int valor) {
 
         // Atualiza os valores do vetor
         // de chaves do elemento que será removido
-        remove->chaves[i] = aux->chaves[aux->ocupacao - 1];
+        remove->registros[i].matricula = aux->registros[aux->ocupacao - 1].matricula;
         remove = aux;
 
         // Variável "valor" recebe
         // o valor armazenado no
         // vetor de chaves do
         // elemento que será removido 
-        valor = remove->chaves[remove->ocupacao - 1];
+        valor = remove->registros[remove->ocupacao - 1].matricula;
 
     }
 
@@ -624,7 +694,7 @@ int removeElemento(btree* arvore, int valor) {
     // e o parâmetro valor for maior
     // que o valor armazenado na posição
     // i do vetor de chaves
-    while ((valor > remove->chaves[i]) && (remove->ocupacao > i)) {
+    while ((valor > remove->registros[i].matricula) && (remove->ocupacao > i)) {
         i++;
 
     }
@@ -633,7 +703,7 @@ int removeElemento(btree* arvore, int valor) {
     // do elemento que será removido
     // para alterar a posição das chaves
     while (remove->ocupacao > i) {
-        remove->chaves[i] = remove->chaves[i + 1];
+        remove->registros[i].matricula = remove->registros[i + 1].matricula;
         i++;
 
     }
@@ -664,7 +734,7 @@ int removeElemento(btree* arvore, int valor) {
         // e o parâmetro valor for maior
         // que o valor armazenado na posição
         // i do vetor de chaves do pai
-        while ((valor > pai->chaves[i]) && (pai->ocupacao > i)) {
+        while ((valor > pai->registros[i].matricula) && (pai->ocupacao > i)) {
             i++;
         
         }
@@ -714,7 +784,7 @@ void rotacao(no* noDesbal, no* irmao, int posPai) {
         // Altera o valor armazenado no vetor chaves
         // do nó desbalanceado para o valor armazenado
         // no vetor chaves do nó pai de posição posPai - 1
-        noDesbal->chaves[noDesbal->ocupacao] = pai->chaves[posPai - 1];
+        noDesbal->registros[noDesbal->ocupacao].matricula = pai->registros[posPai - 1].matricula;
 
         // Incrementa a ocupação do
         // nó desbalanceado
@@ -722,7 +792,7 @@ void rotacao(no* noDesbal, no* irmao, int posPai) {
 
         // Altera o valor armazenado na posição
         // posPai - 1 do vetor de chaves do pai
-        pai->chaves[posPai - 1] = irmao->chaves[irmao->ocupacao - 1];
+        pai->registros[posPai - 1].matricula = irmao->registros[irmao->ocupacao - 1].matricula;
 
         // Decrementa a ocupação
         // do nó irmão
@@ -736,7 +806,7 @@ void rotacao(no* noDesbal, no* irmao, int posPai) {
         // Altera o valor armazenado no vetor chaves
         // do nó desbalanceado para o valor armazenado
         // no vetor chaves do nó pai de posição posPai
-        noDesbal->chaves[noDesbal->ocupacao] = pai->chaves[posPai];
+        noDesbal->registros[noDesbal->ocupacao].matricula = pai->registros[posPai].matricula;
 
         // Incrementa a ocupação do
         // nó desbalanceado
@@ -744,13 +814,13 @@ void rotacao(no* noDesbal, no* irmao, int posPai) {
 
         // Altera o valor armazenado na posição
         // posPai do vetor de chaves do pai
-        pai->chaves[posPai] = irmao->chaves[0];
+        pai->registros[posPai].matricula = irmao->registros[0].matricula;
 
         // Percorre o vetor de chaves e
         // ponteiros do irmão e altera a
         // posição de todos os valores
         while (aux > 0) {
-            irmao->chaves[aux - 1] = irmao->chaves[aux];
+            irmao->registros[aux - 1].matricula = irmao->registros[aux].matricula;
             irmao->ponteiros[aux - 1] = irmao->ponteiros[aux];
 
             aux--;
@@ -796,7 +866,7 @@ no* merge(no* noDesbal, int posPai) {
 
         // Altera o valor armazenado
         // no vetor de chaves do irmão
-        irmao->chaves[irmao->ocupacao] = pai->chaves[posPai - 1];
+        irmao->registros[irmao->ocupacao].matricula = pai->registros[posPai - 1].matricula;
 
         // Incrementa a ocupação
         // do irmão
@@ -809,7 +879,7 @@ no* merge(no* noDesbal, int posPai) {
             // Altera o valor armazenado nos vetores
             // de chaves e ponteiros do nó irmão para os armazenados
             // nos vetores de chaves e ponteiros do nó desbalanceado
-            irmao->chaves[irmao->ocupacao + aux] = noDesbal->chaves[aux];
+            irmao->registros[irmao->ocupacao + aux].matricula = noDesbal->registros[aux].matricula;
             irmao->ponteiros[irmao->ocupacao + aux] = noDesbal->ponteiros[aux];
 
             // Incrementa a ocupação do irmão
@@ -837,7 +907,7 @@ no* merge(no* noDesbal, int posPai) {
 
         // Altera o valor armazenado
         // no vetor de chaves do nó desbalanceado
-        noDesbal->chaves[noDesbal->ocupacao] = pai->chaves[posPai];
+        noDesbal->registros[noDesbal->ocupacao].matricula = pai->registros[posPai].matricula;
 
         // Incrementa a ocupação do irmão
         noDesbal->ocupacao++;
@@ -849,7 +919,7 @@ no* merge(no* noDesbal, int posPai) {
             // Altera o valor armazenado nos vetores
             // de chaves e ponteiros do nó desbalanceado para os armazenados
             // nos vetores de chaves e ponteiros do nó irmão
-            noDesbal->chaves[noDesbal->ocupacao + aux] = irmao->chaves[aux];
+            noDesbal->registros[noDesbal->ocupacao + aux].matricula = irmao->registros[aux].matricula;
             noDesbal->ponteiros[noDesbal->ocupacao + aux] = irmao->ponteiros[aux];
 
             // Incrementa a ocupação do nó desbalanceado
@@ -876,7 +946,7 @@ no* merge(no* noDesbal, int posPai) {
         // Altera a posição dos valores
         // armazenados nos vetores de chaves e
         // ponteiros do nó pai
-        pai->chaves[aux - 1] = pai->chaves[aux];
+        pai->registros[aux - 1].matricula = pai->registros[aux].matricula;
         pai->ponteiros[aux] = pai->ponteiros[aux + 1];
 
         // Decrementa a ocupação do nó pai
@@ -901,58 +971,6 @@ no* merge(no* noDesbal, int posPai) {
 
 }
 
-
-//Função que lê dados do arquivo nomeArquivo e os insere ou remove da B-Tree arvore
-//Se o status for "i", a função deve inserir todos os elementos do arquivo na árvore
-//Se o status for "r", a função deve remover todos os elementos do arquivo da árvore
-void manipulaBTree(btree* arvore, char* nomeArquivo, char status) {
-    
-    // Variável auxiliar
-    int chave;
-
-    // Abertura do arquivo
-    FILE* arquivo = fopen(nomeArquivo, "r");
-
-    // Verifica se houve erro na abertura
-    if (arquivo == NULL) {
-        return;
-        
-    }
-
-    // Insere ou remove os
-    // dados na árvore
-	while(!feof(arquivo)) {
-	    if(fscanf(arquivo, "%d", &chave) == 0) {
-	        
-			// Erro na leitura do arquivo
-	        fclose(arquivo);
-	        return;
-	    
-	    } else {
-            
-            // Insere elemento
-            if (status == 'i') {
-                insereElemento(arvore, chave);
-                imprimeArvore(arvore->raiz, 0);
-
-            // Remove elemento
-            } else if (status == 'r') {
-                removeElemento(arvore, chave);
-                imprimeArvore(arvore->raiz, 0);
-            
-            } else {
-				
-			}
-	    
-	    }
-	
-	}
-
-	// Inserções ou remoções
-    // ocorreram com sucesso
-	fclose(arquivo);
-
-}
-  no* getRaiz(btree *tree){
+no* getRaiz(bt *tree){
     return tree->raiz;
-  }
+}
