@@ -1,359 +1,958 @@
-//
-// Created by rocha on 01/07/2023.
-//
+/*
 
+        Instituto de Matemática e Computação - Universidade Federal de Itajubá
+   (UNIFEI)
+
+        [DISCIPLINA]
+        Algoritmo e Estrutura de Dados II
+        Profa. Vanessa Souza
+
+        [ASSUNTO]
+    	Árvore B
+
+        [DATA]
+        18/07/2022
+
+        [ALUNOS]
+        Matheus Luz de Faria (2020032426)
+        Thais Danieli Branco de Souza (2021001228)
+
+*/
+
+
+// <-- Bibliotecas e extensões -->
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "bTree.h"
+#include "btree.h"
 
-// Estrutura para os registros
-struct registro {
-    int matricula;
-    char nome[50];
-    char dataNascimento[11];
-    char email[50];
-};
 
-// Estrutura para os nós da B-tree
+// <-- Estrutura do nó -->
 struct no {
-    int numChaves;
-    int folha;
     int* chaves;
-    registro** registros;
-    struct no** filhos;
+    no** ponteiros;
+    no* pai;
+    int folha;
+    int ocupacao;
+
 };
 
-// Estrutura para a B-tree
-struct bt {
+
+// <-- Estrutura da árvore -->
+struct btree {
+    int ordem;
     no* raiz;
-    int minChaves;
-    int maxChaves;
+
 };
 
-// Função para criar um novo nó
-no* criarNo(int folha, bt* btree) {
-    no* novo_no = (no*)malloc(sizeof(no));
-    novo_no->numChaves = 0;
-    novo_no->folha = folha;
-    novo_no->chaves = (int*)malloc(sizeof(int) * (2 * btree->minChaves));
-    novo_no->registros = (registro**)malloc(sizeof(registro*) * (2 * btree->minChaves));
-    novo_no->filhos = (no**)malloc(sizeof(no*) * (2 * btree->minChaves + 1));
-    return novo_no;
-}
 
+//Função que aloca e inicializa um novo nó
+no* alocaNo(int ordem) {
 
-// Função para criar uma nova B-tree
-bt* criarbt(int ordem) {
-    bt* btree = (bt*)malloc(sizeof(bt));
-    btree->raiz = criarNo(ordem, btree);
-    btree->minChaves = ordem - 1;
-    btree->maxChaves = 2 * ordem - 1;
-    return btree;
-}
+	// Aloca um novo nó
+    no* novo = (no*) malloc(sizeof(no));
 
-
-// Função para liberar a memória ocupada por um nó
-void liberarNo(no* no) {
-    free(no->chaves);
-    free(no->registros);
-    free(no->filhos);
-    free(no);
-}
-
-// Função para liberar a memória ocupada pela B-tree
-void liberarbt(bt* btree) {
-    if (btree != NULL) {
-        if (btree->raiz != NULL) {
-            liberarNo(btree->raiz);
-        }
-        free(btree);
+	// Verifica se houve erro
+    if (novo == NULL) {
+        return NULL;
+	
     }
+
+	// Aloca a quantidade de chaves
+	// baseado na ordem
+    novo->chaves = (int*) malloc(sizeof(int) * (ordem - 1));
+
+	// Verifica se houve erro
+    if (novo->chaves == NULL) {
+        return NULL;
+	
+    }
+
+	// Aloca a quantidade de ponteiros
+	// baseado na ordem
+    novo->ponteiros = (no**)malloc(sizeof(no*) * (ordem));
+
+	// Verifica se houve erro
+    if (novo->ponteiros == NULL) {
+        return NULL;
+	
+    }
+
+	// Percorre o nó apontando todos
+	// os ponteiros para NULL
+    for (int i = 0; i < ordem; i++) {
+        novo->ponteiros[i] = NULL;
+	
+    }
+
+	// Atribui valores para o nó
+    novo->ocupacao = 0;
+	  novo->pai = NULL;
+    novo->folha = 1;
+
+	// Retorna o nó
+    return novo;
+
 }
 
-// Função para buscar um registro na B-tree
-registro* buscarRegistro(bt* btree, int matricula) {
-    no* no = btree->raiz;
-    int i = 0;
-    while (no != NULL) {
-        i = buscarPosicaoRegistro(no, matricula);
-        if (i < no->numChaves && no->chaves[i] == matricula) {
-            return no->registros[i];
-        } else if (no->folha) {
+
+//Função que aloca e inicializa uma nova árvore com uma raiz alocada, porém vazia.
+//Árvore B tradicional. A ordem m deve ser sempre par. Caso contrário, retorna NULL.
+btree* criaArvore(int m) {
+
+	// Verifica se a ordem é par
+	// através do resto da divisão
+	// Se o resto da divisão for zero,
+	// significa que a ordem é par
+    if (m % 2 == 0) {
+
+		// Cria a árvore
+        btree* arvore = (btree*) malloc(sizeof(btree));
+
+		// Verificação de erro
+        if (arvore == NULL) {
             return NULL;
+			
+        }
+
+		// Define a ordem da árvore
+        arvore->ordem = m;
+
+		// Aloca um novo nó que será
+		// a raiz da árvore
+        arvore->raiz = alocaNo(m);
+
+		// Verificação de erro
+        if (arvore->raiz == NULL) {
+            return NULL;
+			
+        }
+
+		// Retorna a árvore
+        return arvore;
+
+	// Caso o resto da divisão seja diferente
+	// de zero, deve retornar NULL
+    } else {
+        return NULL;
+		
+    }
+
+}
+
+
+//Função que retorna a raiz da árvore
+no* retornaRaiz(btree* arvore) {
+	return arvore->raiz;
+	
+}
+
+
+//Função recursiva que imprime a árvore por profundidade
+//Raiz, filho da esquerda até chegar na folha. E sobe imprimindo os filhos em sequência
+void imprimeArvore(no* atual, int filho) {
+
+	// Variável auxiliar
+	int i = 0;
+	
+	// Verifica se a árvore está vazia
+	if (atual == NULL) {
+		return;
+	
+	}
+
+	// Variável auxiliar armazena
+	// a quantidade de elementos
+	int aux = atual->ocupacao;
+
+	// Verifica se o nó usado como
+	// parâmetro é folha ou não
+	// quando folha = 1, nó é folha
+    if (atual->folha == 1) {
+
+		// Percorre as chaves do nó
+		// imprimindo uma a uma
+		for (; i < aux; i++) {
+            printf("%d  ", atual->chaves[i]);
+		
+        }
+        printf("\n");
+
+	// Se o nó não for folha
+    } else {
+
+		// Percorre as chaves do nó
+		// imprimindo uma a uma
+        for (; i < aux; i++) {
+            printf("%d  ", atual->chaves[i]);
+		
+        }
+        printf("\n");
+
+		// Percorre os ponteiros do nó
+		// imprimindo um a um
+		i = 0;
+		while (i <= aux) {
+			imprimeArvore(atual->ponteiros[i], i);
+			i++;
+			
+		}
+	
+    }
+
+}
+
+
+//Função recursiva que retorna o nó onde o elemento está na árvore
+no* buscaElemento(no* atual, int valor) {
+	
+	// Verifica se a árvore está vazia
+	if (atual == NULL) {
+		return NULL;
+	
+	}
+
+	// Variável auxiliar
+	// usada como contador
+	int aux = 0;
+
+	// Variável usada para
+	// armazenar a quantidade
+	// de elementos
+	int qtd = atual->ocupacao;
+
+	// Percorre a árvore enquanto o contador
+	// for menor que a quantidade de elementos e
+	// enquanto o parâmetro valor for maior que
+	// o valor da chave de posição aux
+	while ((atual->chaves[aux] < valor) && (aux < qtd)) {
+		aux++;
+	
+	}
+
+	// Verifica se o contador é menor do que
+	// a quantidade de elementos da árvore e
+	// se o parâmetro valor é igual ao valor
+	// da chave de posição aux
+	if ((valor == atual->chaves[aux]) && (aux < qtd)) {
+		return atual;
+	
+	}
+
+	// Verifica se o nó é folha	
+    if (atual->folha == 1) {
+		return NULL;
+	
+	}
+
+	// A função chama a si mesma (recursiva) passando
+	// os ponteiros e o valor como parâmetros
+    return buscaElemento(atual->ponteiros[aux], valor);
+
+}
+
+
+//Função que insere um novo elemento na árvore.
+//Encontra a folha correta, realiza a inserção em árvore B tradicional
+//Ou seja, se a folha estiver cheia, primeiro realiza o split e depois insere
+//Se houve a inserção, retorna 1. Caso contrário, retorna -1
+int insereElemento(btree* arvore, int valor) {
+    
+	// Define um ponteiro para
+	// a raiz da árvore
+	no* aux = arvore->raiz;
+
+	// Variável usada para
+	// armazenar a quantidade
+	// de elementos
+	int qtd = aux->ocupacao;
+
+	// Variável usada para
+	// armazenar a ordem
+	int ord = arvore->ordem - 1;
+
+    // Verifica se o ponteiro inicial
+    // é diferente de NULL e se a quantidade
+    // de elementos é menor do que a ordem
+    // da árvore
+    if ((aux->ponteiros[0] == NULL) && (ord > qtd)) {
+
+	    // Enquanto a quantidade de elementos
+		// for menor que a ordem, compara o
+        // valor passado como parâmetro
+        while (ord > qtd) {
+			
+            // Encontra o lugar onde deve
+            // ser realizada a inserção
+            if (aux->chaves[qtd] > valor) {
+                aux->chaves[qtd] = valor;
+                aux->ocupacao++;
+                return 1;
+
+            }
+
+			// Incrementa a ocupação
+            qtd++;
+			
+        }
+
+
+    } else {
+
+        // Percorre enquanto o nó
+        // não for um nó folha
+        while (aux->folha == 0) {
+            
+            // Variável para
+            // auxiliar na busca
+            int cont = 0;
+
+            // Enquanto o contador for menor do que 
+            // a ocupação do nó e o valor passado
+            // como parâmetro for maior ou igual
+            // ao valor das chaves do nó
+			while ((valor > aux->chaves[cont]) && (aux->ocupacao > cont)) {
+                cont++;
+
+            }
+
+            aux = aux->ponteiros[cont];
+
+        }
+
+    }
+
+    // Verifica se a ocupação
+    // do nó é igual a ordem,
+    // se verdade, executa o split
+    if (aux->ocupacao == ord) {
+        aux = split(arvore, aux, valor);
+
+    }
+
+	// "Reseta" a variável usada para
+	// armazenar a quantidade
+	// de elementos
+    qtd = aux->ocupacao;
+
+    // Percorre o vetor de chaves
+    // para organizar as posições
+    while ((aux->chaves[qtd - 1] > valor) && (qtd > 0)) {
+        aux->chaves[qtd] = aux->chaves[qtd - 1];
+        qtd--;
+    
+    }
+
+    // Atribui o parâmetro
+    // valor a posição qtd
+    // do vetor de chaves
+    // do nó atual
+    aux->chaves[qtd] = valor;
+
+    // Incrementa a ocupação
+    aux->ocupacao++;
+
+    // Se a inserção for
+    // bem sucedida, retorna 1
+    return 1;
+
+}
+
+
+//Função que realiza o split no noDesbal. A variável valor guarda o elemento que está sendo inserido (e que causou o split)
+//Função chamada pela função insereElemento
+//Sempre sobe o elemento do meio para o pai (m é sempre par).
+//Caso o pai esteja cheio, a função se chama recursivamente.
+no* split(btree* arvore, no* noDesbal, int valor) {
+
+    // Variável para
+    // usar como contador
+    int i = 0;
+
+    // Ponteiro auxiliar
+    // para armazenar a
+    // referência ao pai
+    // do nó desbalanceado
+    no* pai = noDesbal->pai;
+
+	// Aloca um novo nó
+    no* novo = alocaNo(arvore->ordem);
+
+    // Verificação de erro
+    if (novo == NULL) {
+        return NULL;
+			
+    }
+
+    // Atribui os valores
+    // ao novo nó
+    novo->folha = noDesbal->folha;
+    novo->pai = noDesbal->pai;
+
+    // Variável para armazenar
+    // o valor da chave que está
+    // no meio da árvore
+    int chave = noDesbal->chaves[(arvore->ordem - 1) / 2];
+
+    // Aux recebe meio + 1
+    int aux = ((arvore->ordem - 1) / 2) + 1;
+
+    // Enquanto o auxiliar for menor
+    // do que o meio da árvroe
+    while (arvore->ordem - 1 > aux) {
+
+		// Decrementa a ocupação do
+		// nó desbalanceado
+        noDesbal->ocupacao--;
+
+		// Incrementa a ocupação do
+		// novo nó
+        novo->ocupacao++;
+		
+        // Altera os valores
+        // do vetor de chaves
+        // do novo nó
+        novo->chaves[i] = noDesbal->chaves[aux];
+
+        // Verifica se o novo nó
+        // é uma folha
+        if (novo->folha == 0) {
+            
+            // Altera os valores do vetor de ponteiros
+            // do novo nó e aponta os ponteiros do
+            // nó desbalanceado para o novo nó
+            novo->ponteiros[i] = noDesbal->ponteiros[aux];
+            noDesbal->ponteiros[aux]->pai = novo;
+
+        }
+
+        // Ponteiros do nó desbalanceado
+        // apontam para NULL
+        noDesbal->ponteiros[aux] = NULL;
+
+		// Incrementa os contadores
+        aux++;
+        i++;
+
+    }
+
+    // Verifica se o novo nó
+    // é uma folha
+    if (novo->folha == 0) {
+
+        // Altera os valores do vetor de ponteiros
+        // do novo nó e aponta os ponteiros do
+        // nó desbalanceado para o novo nó
+        novo->ponteiros[i] = noDesbal->ponteiros[aux];
+        noDesbal->ponteiros[aux]->pai = novo;
+
+    }
+
+    // Ponteiro de posição
+    // aux do novo nó aponta
+    // para NULL
+    novo->ponteiros[aux] = NULL;
+
+    // Verifica se o
+    // nó pai é diferente
+    // de NULL
+    if (pai != NULL) {
+
+        // Variável recebe a
+        // ocupação do ponteiro pai
+        i = pai->ocupacao;
+
+        // Se a ocupação for igual a ordem 
+        // da árvore - 1, chama a função recursivamente
+        if (arvore->ordem - 1 == i) {
+            pai = split(arvore, pai, chave);
+            i = pai->ocupacao;
+
+        }
+
+        // Percorre o vetor de chaves e ponteiros
+        // do nó pai e altera os valores
+        while ((pai->chaves[i - 1] > chave) && (i > 0)) {
+            pai->chaves[i] = pai->chaves[i - 1];
+            pai->ponteiros[i + 1] = pai->ponteiros[i];
+            i--;
+
+        }
+
+        // Atribui o valor de aux
+        // a posição i do vetor de chaves
+        pai->chaves[i] = chave;
+
+        // Atribui o valor de novo
+        // para a posição i+1 do vetor de ponteiros
+        pai->ponteiros[i + 1] = novo;
+
+        // Incrementa ocupação
+        // do nó pai
+        pai->ocupacao++;
+
+        // Decrementa a ocupação
+        // do nó desbalanceado
+        noDesbal->ocupacao--;
+
+        // Atualiza a referência
+        // do pai do novo nó
+        novo->pai = pai;
+
+    // Pai é NULL
+    } else {
+
+		// Aloca um novo nó
+        no* raiz = alocaNo(arvore->ordem);
+
+        // Verificação de erro
+        if (raiz == NULL) {
+            return NULL;
+                
+        }
+
+        // Atribui valores
+        // ao novo nó
+        raiz->chaves[0] = chave;
+        raiz->pai = NULL;
+        raiz->folha = 0;
+        raiz->ocupacao++;
+
+        // Decrementa a ocupação
+        // do nó desbalanceado
+        noDesbal->ocupacao--;
+
+        // Altera o valor armazenado
+        // no vetor das duas primeiras
+        // posições de ponteiros do
+        // nó raiz
+        raiz->ponteiros[0] = noDesbal;
+        raiz->ponteiros[1] = novo;
+
+        // Altera o pai do nó
+        // desbalanceado para a raiz
+        noDesbal->pai = raiz;
+
+        // Altera o pai do novo nó
+        // para a raiz
+        novo->pai = raiz;
+
+        // Altera a raiz da árvore
+        // para a nova razz
+        arvore->raiz = raiz;
+		
+    }
+
+    // Compara o parâmetro valor
+    // com a variável aux
+    if (valor > chave){
+        return novo;
+
+    } else {
+        return noDesbal;
+
+    }
+
+}
+
+
+//Função que remove um elemento da B-Tree
+//Na remoção por cópia, usar o predecessor
+//No caso de rotação e merge, tentar primeiro o irmão da esquerda e depois o da direita
+//Se houve a remoção, retorna 1. Caso contrário, retorna -1
+int removeElemento(btree* arvore, int valor) {
+
+    // Ponteiro usado para buscar
+    // o elemento que será removido
+    no* remove = buscaElemento(arvore->raiz, valor);
+
+    // Verifica se o elemento
+    // foi encontrado ou não
+    if (remove == NULL) {
+        return -1;
+
+    }
+
+    // Ponteiro auxiliar
+    no* aux;
+
+    // Variável auxiliar usada
+    // como contador
+    int i = 0;
+
+    // Verifica se o nó
+    // é do "tipo folha"
+    if (remove->folha == 0) {
+
+        // Percorre enquanto não i
+        // for menor que a ocupação do nó
+        // e o parâmetro valor for maior
+        // que o valor armazenado na posição
+        // i do vetor de chaves
+        while ((valor > remove->chaves[i]) && (remove->ocupacao > i)) {
+             i++;
+
+        }
+
+        // Variável auxiliar aponta
+        // para o valor armazenado
+        // na posição i do vetor
+        // de ponteiros
+        aux = remove->ponteiros[i];
+
+        // Percorre o vetor de ponteiros
+        // do nó auxiliar até chegar ao NULL
+        while (aux->ponteiros[aux->ocupacao - 1] != NULL) {
+            aux = aux->ponteiros[aux->ocupacao];
+
+        }
+
+        // Atualiza os valores do vetor
+        // de chaves do elemento que será removido
+        remove->chaves[i] = aux->chaves[aux->ocupacao - 1];
+        remove = aux;
+
+        // Variável "valor" recebe
+        // o valor armazenado no
+        // vetor de chaves do
+        // elemento que será removido 
+        valor = remove->chaves[remove->ocupacao - 1];
+
+    }
+
+    // Percorre enquanto não i
+    // for menor que a ocupação do nó
+    // e o parâmetro valor for maior
+    // que o valor armazenado na posição
+    // i do vetor de chaves
+    while ((valor > remove->chaves[i]) && (remove->ocupacao > i)) {
+        i++;
+
+    }
+
+    // Percorre o vetor de chaves
+    // do elemento que será removido
+    // para alterar a posição das chaves
+    while (remove->ocupacao > i) {
+        remove->chaves[i] = remove->chaves[i + 1];
+        i++;
+
+    }
+
+    // Decrementa a ocupação
+    // do elemento
+    remove->ocupacao--;
+
+	// Reseta o contador i
+    // para zero
+    i = 0;
+
+    // Variável usada para
+    // indicar o meio da árvore
+    int meio = (arvore->ordem - 1) / 2;
+
+    // Se a ocupação do elemento que será
+    // removido for menor que o meio da árvore
+    if (meio > remove->ocupacao) {
+
+        // Ponteiro pai armazena
+        // a referência para o pai
+        // do elemento que será removido
+        no* pai = remove->pai;
+
+        // Percorre enquanto não i
+        // for menor que a ocupação do nó pai
+        // e o parâmetro valor for maior
+        // que o valor armazenado na posição
+        // i do vetor de chaves do pai
+        while ((valor > pai->chaves[i]) && (pai->ocupacao > i)) {
+            i++;
+        
+        }
+
+        // Verifica a necessidade de 
+        // efetuar a rotação ou merge
+        // Verifica se i é maior que zero
+        // e se a ocupação armazenada na posição i-1 do
+        // vetor de ponteiros do nó pai é maior que o meio
+        if ((pai->ponteiros[i - 1]->ocupacao > meio) && (i > 0)) {
+            rotacao(remove, pai->ponteiros[i - 1], i);
+
+        // Verifica se i é menor que a ocupação do pai
+        // e se a ocupação armazenada na posição i+1 do
+        // vetor de ponteiros do nó pai é maior que o meio
+        } else if ((pai->ponteiros[i + 1]->ocupacao > meio) && (pai->ocupacao > i)) {
+            rotacao(remove, pai->ponteiros[i + 1], i);
+
+        // Caso nenhuma das duas condições anteriores
+        // sejam satisfeitas, é feito um merge
         } else {
-            no = no->filhos[i];
+            merge(remove, i);
+
         }
+
     }
-    return NULL;
+
+    // Remoção bem sucedida,
+    // então retorna 1
+    return 1;
+
 }
 
-// Função para buscar a posição de inserção de uma matrícula em um nó
-int buscarPosicaoInsercao(no* no, int matricula) {
-    int i = 0;
-    while (i < no->numChaves && matricula > no->chaves[i]) {
-        i++;
-    }
-    return i;
-}
 
-// Função para buscar a posição de um registro em um nó
-int buscarPosicaoRegistro(no* no, int matricula) {
-    int i = 0;
-    while (i < no->numChaves && matricula > no->chaves[i]) {
-        i++;
-    }
-    return i;
-}
+//Função que implementa a rotação, levanto um elemento do pai para o nóDesbal e subindo um elemento do no irmão para o pai
+// A variável posPai guarda a posição do ponteiro do pai que aponta para o nó noDesbal
+void rotacao(no* noDesbal, no* irmao, int posPai) {
+    
+    // Ponteiro aponta para
+    // o pai do nó irmão
+    no* pai = irmao->pai;
 
-// Função para buscar o sucessor de um registro na B-tree
-no* buscarSucessor(bt* btree, no* no, int indice) {
-    struct no *atual;
-    atual = no->filhos[indice + 1];
-    while (!atual->folha) {
-        atual = atual->filhos[0];
-    }
-    return atual;
-}
+    // Verifica se o valor armazenado no ponteiro
+    // de posição posPai - 1 é igual ao nó irmão
+    if (pai->ponteiros[posPai - 1] == irmao) {
 
-// Função para inserir um registro em um nó não cheio
-void inserirNoNaoCheio(bt* btree, no* no, registro* registro) {
-    int i = no->numChaves;
-    if (no->folha) {
-        while (i > 0 && registro->matricula < no->chaves[i - 1]) {
-            no->chaves[i] = no->chaves[i - 1];
-            no->registros[i] = no->registros[i - 1];
-            i--;
-        }
-        no->chaves[i] = registro->matricula;
-        no->registros[i] = registro;
-        no->numChaves++;
+        // Altera o valor armazenado no vetor chaves
+        // do nó desbalanceado para o valor armazenado
+        // no vetor chaves do nó pai de posição posPai - 1
+        noDesbal->chaves[noDesbal->ocupacao] = pai->chaves[posPai - 1];
+
+        // Incrementa a ocupação do
+        // nó desbalanceado
+        noDesbal->ocupacao++;
+
+        // Altera o valor armazenado na posição
+        // posPai - 1 do vetor de chaves do pai
+        pai->chaves[posPai - 1] = irmao->chaves[irmao->ocupacao - 1];
+
+        // Decrementa a ocupação
+        // do nó irmão
+        irmao->ocupacao--;
+
     } else {
-        while (i > 0 && registro->matricula < no->chaves[i - 1]) {
-            i--;
+
+        // Variável auxiliar
+        int aux = irmao->ocupacao - 1;
+
+        // Altera o valor armazenado no vetor chaves
+        // do nó desbalanceado para o valor armazenado
+        // no vetor chaves do nó pai de posição posPai
+        noDesbal->chaves[noDesbal->ocupacao] = pai->chaves[posPai];
+
+        // Incrementa a ocupação do
+        // nó desbalanceado
+        noDesbal->ocupacao++;
+
+        // Altera o valor armazenado na posição
+        // posPai do vetor de chaves do pai
+        pai->chaves[posPai] = irmao->chaves[0];
+
+        // Percorre o vetor de chaves e
+        // ponteiros do irmão e altera a
+        // posição de todos os valores
+        while (aux > 0) {
+            irmao->chaves[aux - 1] = irmao->chaves[aux];
+            irmao->ponteiros[aux - 1] = irmao->ponteiros[aux];
+
+            aux--;
         }
-        if (no->filhos[i]->numChaves == btree->maxChaves) {
-            dividirNo(btree, no, i);
-            if (registro->matricula > no->chaves[i]) {
-                i++;
-            }
-        }
-        inserirNoNaoCheio(btree, no->filhos[i], registro);
+
+        // Decrementa a ocupação
+        // do nó irmão
+        irmao->ocupacao--;
+
     }
+
 }
 
-// Função para dividir um nó cheio
-void dividirNo(bt* btree, no* no, int indiceFilho) {
-    struct no *filho;
-    struct no *novoNo;
-    filho = no->filhos[indiceFilho];
-    novoNo = criarNo(filho->folha, btree);
-    novoNo->numChaves = btree->minChaves;
 
-    for (int j = 0; j < btree->minChaves; j++) {
-        novoNo->chaves[j] = filho->chaves[j + btree->minChaves];
-        novoNo->registros[j] = filho->registros[j + btree->minChaves];
-    }
+//Função que implementa o merge do nó Desbal com seu irmão da esquerda ou da direita
+//Se a variãvel posPai é maior que zero, o merge acontece com o irmão da esquerda
+//Caso contrário, com o irmão da direita
+no* merge(no* noDesbal, int posPai) {
 
-    if (!filho->folha) {
-        for (int j = 0; j <= btree->minChaves; j++) {
-            novoNo->filhos[j] = filho->filhos[j + btree->minChaves];
+    // Ponteiro aponta para
+    // o pai do nó desbalanceado
+    no* pai = noDesbal->pai;
+
+	// Ponteiro do irmão
+	no* irmao;
+
+    // Variável para definir
+    // o retorno
+    int ret = 0;
+
+    // Variável auxiliar
+    // para contar
+    int aux = 0;
+
+    // Merge acontece com
+    // irmão da esquerda
+    if (posPai > 0) {
+
+        // Ponteiro aponta para
+        // o valor armazenado no vetor
+        // de ponteiros do pai na posição posPai-1
+        irmao = pai->ponteiros[posPai - 1];
+
+        // Altera o valor armazenado
+        // no vetor de chaves do irmão
+        irmao->chaves[irmao->ocupacao] = pai->chaves[posPai - 1];
+
+        // Incrementa a ocupação
+        // do irmão
+        irmao->ocupacao++;
+
+        // Loop enquanto aux for menor
+        // que a ocupação do nó desbalanceado
+        while (noDesbal->ocupacao > aux) {
+            
+            // Altera o valor armazenado nos vetores
+            // de chaves e ponteiros do nó irmão para os armazenados
+            // nos vetores de chaves e ponteiros do nó desbalanceado
+            irmao->chaves[irmao->ocupacao + aux] = noDesbal->chaves[aux];
+            irmao->ponteiros[irmao->ocupacao + aux] = noDesbal->ponteiros[aux];
+
+            // Incrementa a ocupação do irmão
+            irmao->ocupacao++;
+
+            // Incrementa o contador
+            aux++;
+			
         }
-    }
 
-    filho->numChaves = btree->minChaves;
+        // Contador aux recebe
+        // o valor de posPai
+        aux = posPai;
 
-    for (int j = no->numChaves; j > indiceFilho; j--) {
-        no->filhos[j + 1] = no->filhos[j];
-    }
+        // Variável ret = 0, retorna o irmão
 
-    no->filhos[indiceFilho + 1] = novoNo;
-
-    for (int j = no->numChaves - 1; j >= indiceFilho; j--) {
-        no->chaves[j + 1] = no->chaves[j];
-        no->registros[j + 1] = no->registros[j];
-    }
-
-    no->chaves[indiceFilho] = filho->chaves[btree->minChaves - 1];
-    no->registros[indiceFilho] = filho->registros[btree->minChaves - 1];
-
-    no->numChaves++;
-}
-
-// Função para inserir um registro na B-tree
-void inserirRegistro(bt* btree, registro* registro) {
-    no* raiz = btree->raiz;
-    if (raiz->numChaves == (2 * btree->minChaves)) {
-        no* novoNo = criarNo(0, btree);
-        btree->raiz = novoNo;
-        novoNo->filhos[0] = raiz;
-        dividirNo(btree, novoNo, 0);
-        inserirNoNaoCheio(btree, novoNo, registro);
+    // Merge acontece com
+    // irmão da direita
     } else {
-        inserirNoNaoCheio(btree, raiz, registro);
-    }
-}
 
-// Função para percorrer a B-tree em ordem
-void percorrerEmOrdem(bt* btree) {
-    no* raiz = btree->raiz;
-    if (raiz != NULL) {
-        int i;
-        for (i = 0; i < raiz->numChaves; i++) {
-            if (!raiz->folha) {
-                percorrerEmOrdem(btree->raiz->filhos[i]);
-            }
-            exibirRegistro(raiz->registros[i]);
+        // Ponteiro aponta para
+        // o valor armazenado no vetor
+        // de ponteiros do pai na posição posPai+1
+        irmao = pai->ponteiros[posPai + 1];
+
+        // Altera o valor armazenado
+        // no vetor de chaves do nó desbalanceado
+        noDesbal->chaves[noDesbal->ocupacao] = pai->chaves[posPai];
+
+        // Incrementa a ocupação do irmão
+        noDesbal->ocupacao++;
+
+        // Loop enquanto aux for menor
+        // que a ocupação do nó irmão
+        while (irmao->ocupacao > aux) {
+            
+            // Altera o valor armazenado nos vetores
+            // de chaves e ponteiros do nó desbalanceado para os armazenados
+            // nos vetores de chaves e ponteiros do nó irmão
+            noDesbal->chaves[noDesbal->ocupacao + aux] = irmao->chaves[aux];
+            noDesbal->ponteiros[noDesbal->ocupacao + aux] = irmao->ponteiros[aux];
+
+            // Incrementa a ocupação do nó desbalanceado
+            noDesbal->ocupacao++;
+
+            // Incrementa o contador
+            aux++;
         }
-        if (!raiz->folha) {
-            percorrerEmOrdem(raiz->filhos[i]);
-        }
+
+        // Contador aux recebe
+        // o valor de posPai+1
+        aux = posPai + 1;
+
+        // Variável ret = 1, retorna o
+        // nó desbalanceado
+        ret++;
+
     }
+
+    // Loop enquanto aux for menor
+    // que a ocupação do nó pai
+    while (pai->ocupacao > aux) {
+
+        // Altera a posição dos valores
+        // armazenados nos vetores de chaves e
+        // ponteiros do nó pai
+        pai->chaves[aux - 1] = pai->chaves[aux];
+        pai->ponteiros[aux] = pai->ponteiros[aux + 1];
+
+        // Decrementa a ocupação do nó pai
+        pai->ocupacao--;
+
+        // Incrementa o contador
+        aux++;
+
+    }
+
+    // Define o retorno que
+    // será feito
+    if (ret == 0){
+        // Retorna o irmão
+        return irmao;
+
+    } else {
+        // Retorna o nó desbalanceado
+        return noDesbal;
+
+    }
+
 }
 
-// Função para exibir um registro
-void exibirRegistro(registro* registro) {
-    printf("Matrícula: %d\n", registro->matricula);
-    printf("Nome: %s\n", registro->nome);
-    printf("Data de Nascimento: %s\n", registro->dataNascimento);
-    printf("Email: %s\n", registro->email);
-    printf("------------------------\n");
-}
 
-// Função para remover um registro da B-tree
-void removerRegistro(bt* btree, int matricula) {
-    no* raiz = btree->raiz;
-    if (raiz == NULL) {
+//Função que lê dados do arquivo nomeArquivo e os insere ou remove da B-Tree arvore
+//Se o status for "i", a função deve inserir todos os elementos do arquivo na árvore
+//Se o status for "r", a função deve remover todos os elementos do arquivo da árvore
+void manipulaBTree(btree* arvore, char* nomeArquivo, char status) {
+    
+    // Variável auxiliar
+    int chave;
+
+    // Abertura do arquivo
+    FILE* arquivo = fopen(nomeArquivo, "r");
+
+    // Verifica se houve erro na abertura
+    if (arquivo == NULL) {
         return;
+        
     }
-    int indice = buscarPosicaoRegistro(raiz, matricula);
-    if (indice < raiz->numChaves && raiz->chaves[indice] == matricula) {
-        if (raiz->folha) {
-            for (int i = indice; i < raiz->numChaves - 1; i++) {
-                raiz->chaves[i] = raiz->chaves[i + 1];
-                raiz->registros[i] = raiz->registros[i + 1];
-            }
-            raiz->numChaves--;
-        } else {
-            no* filhoEsq = raiz->filhos[indice];
-            no* filhoDir = raiz->filhos[indice + 1];
-            if (filhoEsq->numChaves >= btree->minChaves) {
-                no* antecessor = buscarSucessor(btree, raiz, indice);
-                raiz->chaves[indice] = antecessor->chaves[0];
-                removerRegistro(btree, antecessor->chaves[0]);
-            } else if (filhoDir->numChaves >= btree->minChaves) {
-                no* sucessor = buscarSucessor(btree, raiz, indice + 1);
-                raiz->chaves[indice] = sucessor->chaves[0];
-                removerRegistro(btree, sucessor->chaves[0]);
+
+    // Insere ou remove os
+    // dados na árvore
+	while(!feof(arquivo)) {
+	    if(fscanf(arquivo, "%d", &chave) == 0) {
+	        
+			// Erro na leitura do arquivo
+	        fclose(arquivo);
+	        return;
+	    
+	    } else {
+            
+            // Insere elemento
+            if (status == 'i') {
+                insereElemento(arvore, chave);
+                imprimeArvore(arvore->raiz, 0);
+
+            // Remove elemento
+            } else if (status == 'r') {
+                removeElemento(arvore, chave);
+                imprimeArvore(arvore->raiz, 0);
+            
             } else {
-                mesclarNos(btree, raiz, indice, indice);
-                removerRegistro(btree, matricula);
-            }
-        }
-    } else {
-        no* filho = raiz->filhos[indice];
-        if (filho->numChaves >= btree->minChaves) {
-            removerRegistro(btree, matricula);
-        } else {
-            no* irmaoEsq = NULL;
-            no* irmaoDir = NULL;
-            int indiceIrmao = -1;
-            if (indice > 0) {
-                irmaoEsq = raiz->filhos[indice - 1];
-                indiceIrmao = indice - 1;
-            }
-            if (indice < raiz->numChaves) {
-                irmaoDir = raiz->filhos[indice + 1];
-                indiceIrmao = indice;
-            }
-            if (irmaoEsq && irmaoEsq->numChaves >= btree->minChaves) {
-                redistribuirNos(btree, raiz, indiceIrmao, indice - 1);
-            } else if (irmaoDir && irmaoDir->numChaves >= btree->minChaves) {
-                redistribuirNos(btree, raiz, indiceIrmao, indice);
-            } else if (irmaoEsq) {
-                mesclarNos(btree, raiz, indice - 1, indice - 1);
-            } else if (irmaoDir) {
-                mesclarNos(btree, raiz, indice, indice);
-            }
-            removerRegistro(btree, matricula);
-        }
-    }
+				
+			}
+	    
+	    }
+	
+	}
+
+	// Inserções ou remoções
+    // ocorreram com sucesso
+	fclose(arquivo);
+
 }
-
-// Função para mesclar dois nós irmãos
-void mesclarNos(bt* btree, no* no, int indiceIrmao, int indiceChave) {
-    struct no *filhoDir;
-    struct no *filhoEsq;
-    filhoEsq = no->filhos[indiceIrmao];
-    filhoDir = no->filhos[indiceIrmao + 1];
-
-    filhoEsq->chaves[btree->minChaves - 1] = no->chaves[indiceChave];
-
-    for (int i = 0; i < filhoDir->numChaves; i++) {
-        filhoEsq->chaves[i + btree->minChaves] = filhoDir->chaves[i];
-        filhoEsq->registros[i + btree->minChaves] = filhoDir->registros[i];
-    }
-
-    if (!filhoEsq->folha) {
-        for (int i = 0; i <= filhoDir->numChaves; i++) {
-            filhoEsq->filhos[i + btree->minChaves] = filhoDir->filhos[i];
-        }
-    }
-
-    for (int i = indiceChave; i < no->numChaves - 1; i++) {
-        no->chaves[i] = no->chaves[i + 1];
-        no->registros[i] = no->registros[i + 1];
-    }
-
-    for (int i = indiceIrmao + 1; i < no->numChaves; i++) {
-        no->filhos[i] = no->filhos[i + 1];
-    }
-
-    no->filhos[no->numChaves] = NULL;
-    no->numChaves--;
-
-    liberarNo(filhoDir);
-}
-
-// Função para redistribuir os registros entre dois nós irmãos
-void redistribuirNos(bt* btree, no* no, int indiceIrmao, int indiceChave) {
-    struct no *filhoDir;
-    struct no *filhoEsq;
-    filhoEsq = no->filhos[indiceIrmao];
-    filhoDir = no->filhos[indiceIrmao + 1];
-
-    if (indiceIrmao < indiceChave) {
-        filhoEsq->chaves[btree->minChaves - 1] = no->chaves[indiceIrmao];
-        filhoEsq->registros[btree->minChaves - 1] = no->registros[indiceIrmao];
-        no->chaves[indiceIrmao] = filhoDir->chaves[0];
-        no->registros[indiceIrmao] = filhoDir->registros[0];
-        for (int i = 0; i < filhoDir->numChaves - 1; i++) {
-            filhoDir->chaves[i] = filhoDir->chaves[i + 1];
-            filhoDir->registros[i] = filhoDir->registros[i + 1];
-        }
-        if (!filhoDir->folha) {
-            filhoDir->filhos[filhoDir->numChaves] = filhoDir->filhos[filhoDir->numChaves + 1];
-        }
-    } else {
-        for (int i = filhoEsq->numChaves; i > 0; i--) {
-            filhoEsq->chaves[i] = filhoEsq->chaves[i - 1];
-            filhoEsq->registros[i] = filhoEsq->registros[i - 1];
-        }
-        if (!filhoEsq->folha) {
-            for (int i = filhoEsq->numChaves + 1; i > 0; i--) {
-                filhoEsq->filhos[i] = filhoEsq->filhos[i - 1];
-            }
-        }
-        filhoEsq->chaves[btree->minChaves - 1] = no->chaves[indiceChave];
-        filhoEsq->registros[btree->minChaves - 1] = no->registros[indiceChave];
-        no->chaves[indiceChave] = filhoDir->chaves[filhoDir->numChaves - 1];
-        no->registros[indiceChave] = filhoDir->registros[filhoDir->numChaves - 1];
-        if (!filhoDir->folha) {
-            filhoEsq->filhos[btree->minChaves] = filhoDir->filhos[filhoDir->numChaves];
-        }
-    }
-
-    filhoEsq->numChaves++;
-    filhoDir->numChaves--;
-}
+  no* getRaiz(btree *tree){
+    return tree->raiz;
+  }

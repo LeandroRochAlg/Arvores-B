@@ -1,63 +1,62 @@
 //
-// Created by rocha on 01/07/2023.
+// Created by Vanessa on 22/06/2022.
 //
 
-#ifndef TRABALHO_2_BTREE_H
-#define TRABALHO_2_BTREE_H
+#ifndef LISTA_9_BTREE_H
+#define LISTA_9_BTREE_H
 
 typedef struct no no;
-typedef struct bt bt;
-typedef struct registro registro;
 
-bt *criaBTree(int ordem);
+typedef struct btree btree;
 
-void lerRegistros(bt *arv, char *nomeArquivo);
+//Função que aloca e inicializa um novo nó
+no *alocaNo(int ordem);
 
-void gerarRegistros();
+//Função que aloca e inicializa uma nova árvore com uma raiz alocada, porém vazia.
+//Árvore B tradicional. A ordem m deve ser sempre par. Caso contrário, retorna NULL.
+btree *criaArvore(int m);
 
-// Função para criar um novo nó
-no* criarNo(int folha, bt* btree);
+//Função que retorna a raiz da árvore
+no *retornaRaiz(btree *arvore);
 
-// Função para criar uma nova B-tree
-bt* criarBTree();
+//Função recursiva que imprime a árvore por profundidade
+//Raiz, filho da esquerda até chegar na folha. E sobe imprimindo os filhos em sequência
+void imprimeArvore(no *atual, int filho);
 
-// Função para liberar a memória ocupada pela B-tree
-void liberarBTree(bt* btree);
+//Função recursiva que retorna o nó onde o elemento está na árvore
+no *buscaElemento(no *atual, int valor);
 
-// Função para buscar um registro na B-tree
-registro* buscarRegistro(bt* btree, int matricula);
+//Função que insere um novo elemento na árvore.
+//Encontra a folha correta, realiza a inserção em árvore B tradicional
+//Ou seja, se a folha estiver cheia, primeiro realiza o split e depois insere
+//Se houve a inserção, retorna 1. Caso contrário, retorna -1
+int insereElemento(btree *arvore, int valor);
 
-// Função para inserir um registro na B-tree
-void inserirRegistro(bt* btree, registro* registro);
+//Função que realiza o split no noDesbal. A variável valor guarda o elemento que está sendo inserido (e que causou o split)
+//Função chamada pela função insereElemento
+//Sempre sobe o elemento do meio para o pai (m é sempre par).
+//Caso o pai esteja cheio, a função se chama recursivamente.
+no *split(btree *arvore, no *noDesbal, int valor);
 
-// Função para dividir um nó cheio
-void dividirNo(bt* btree, no* no, int indiceFilho);
+//Função que remove um elemento da B-Tree
+//Na remoção por cópia, usar o predecessor
+//No caso de rotação e merge, tentar primeiro o irmão da esquerda e depois o da direita
+//Se houve a remoção, retorna 1. Caso contrário, retorna -1
+int removeElemento(btree *arvore, int valor);
 
-// Função para inserir um registro em um nó não cheio
-void inserirNoNaoCheio(bt* btree, no* no, registro* registro);
+//Função que implementa a rotação, levanto um elemento do pai para o nóDesbal e subindo um elemento do no irmão para o pai
+// A variável posPai guarda a posição do ponteiro do pai que aponta para o nó noDesbal
+void rotacao(no *noDesbal, no *irmao, int posPai);
 
-// Função para percorrer a B-tree em ordem
-void percorrerEmOrdem(bt* btree);
+//Função que implementa o merge do nó Desbal com seu irmão da esquerda ou da direita
+//Se a variãvel posPai é maior que zero, o merge acontece com o irmão da esquerda
+//Caso contrário, com o irmão da direita
+no *merge(no *noDesbal, int posPai);
 
-// Função para buscar a posição de inserção de uma matrícula em um nó
-int buscarPosicaoInsercao(no* no, int matricula);
+//Função que lê dados do arquivo nomeArquivo e os insere ou remove da B-Tree arvore
+//Se o status for "i", a função deve inserir todos os elementos do arquivo na árvore
+//Se o status for "r", a função deve remover todos os elementos do arquivo da árvore
+void manipulaBTree(btree *arvore, char *nomeArquivo, char status);
+  no* getRaiz(btree *tree);
 
-// Função para buscar a posição de um registro em um nó
-int buscarPosicaoRegistro(no* no, int matricula);
-
-// Função para buscar o sucessor de um registro na B-tree
-no* buscarSucessor(bt* btree, no* no, int indice);
-
-// Função para remover um registro da B-tree
-void removerRegistro(bt* btree, int matricula);
-
-// Função para mesclar dois nós irmãos
-void mesclarNos(bt* btree, no* no, int indiceIrmao, int indiceChave);
-
-// Função para redistribuir os registros entre dois nós irmãos
-void redistribuirNos(bt* btree, no* no, int indiceIrmao, int indiceChave);
-
-// Função para exibir um registro
-void exibirRegistro(registro* registro);
-
-#endif //TRABALHO_2_BTREE_H
+#endif //LISTA_9_BTREE_H
