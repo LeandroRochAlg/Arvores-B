@@ -53,41 +53,11 @@ no *merge(no *noDesbal, int posPai);
 
 no* getRaiz(bt *tree);
 
-no *alocaNo(int ordem);
-
 void lerRegistros(bt *arv, char *nomeArquivo);
-
-void insereElemento(bt *arv, registro reg);
-
-void insereNaoCheio(no *no, registro reg, int ordem);
-
-void divideNo(no *pai, int i, no *filho, int ordem);
-
-registro *buscar(bt *arv, int matricula);
-
-registro *buscaElementoNo(no *no, int matricula);
-
-void removerElemento(bt *arv, int matricula);
-
-void preencherNo(no* no, int indice);
-
-void removerChave(no *no, int matricula, int ordem);
-
-void removerElementoNo(no *no, int indice, int ordem);
-
-registro *encontraPredescessor(no *no, int indice);
-
-registro *encontraSucessor(no *no, int indice);
-
-void rotacaoEsq(no *pai, int indice, int ordem);
-
-void rotacaoDir(no *pai, int indice, int ordem);
-
-void merge(no *pai, int indice, int ordem);
 
 void gerarRegistros();
 
-int gerarMatriculaUnica(int *matriculas, int n);
+int gerarMatriculaUnica(int *matriculas, int i);
 
 int buscaMatricula(int *matriculas, int n, int matricula);
 
