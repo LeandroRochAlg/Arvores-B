@@ -4,7 +4,11 @@
 #include "bTree.h"
 
 int main() {
-    int ordem;
+    char nomeArquivo[30];
+    int opcao, matricula, ordem;
+
+    gerarRegistros();
+
     printf("Informe a ordem da B-Tree: ");
     scanf("%d", &ordem);
 
@@ -12,9 +16,11 @@ int main() {
 
     bt *arv = criaBTree(ordem);
 
-    int opcao, chave;
+    registro *reg;
+
     while (1) {
         printf("\nMenu:\n");
+        printf("0. Inserir registros\n");
         printf("1. Procurar elemento\n");
         printf("2. Remover registro\n");
         printf("3. Sair\n");
@@ -22,11 +28,17 @@ int main() {
         scanf("%d", &opcao);
 
         switch (opcao) {
+            case 0:
+                printf("Informe o nome do arquivo de registros: ");
+                scanf("%s", nomeArquivo);
+                lerRegistros(arv, nomeArquivo);
+                printf("Registros inseridos na B-Tree!\n");
+                break;
             case 1:
-                printf("Informe a chave a ser pesquisada: ");
-                scanf("%d", &chave);
-                no *noEncontrado = buscar(raiz, chave);
-                if (noEncontrado != NULL) {
+                printf("Informe a matrícula a ser pesquisada: ");
+                scanf("%d", &matricula);
+                reg = buscar(arv, matricula);
+                if (reg != NULL) {
                     printf("Chave encontrada na B-Tree!\n");
                 } else {
                     printf("Chave nao encontrada na B-Tree!\n");
@@ -35,8 +47,8 @@ int main() {
 
             case 2:
                 printf("Informe a chave a ser removida: ");
-                scanf("%d", &chave);
-                raiz = remover(raiz, chave);
+                scanf("%d", &matricula);
+                removerElemento(arv, matricula);
                 printf("Chave removida da B-Tree!\n");
                 break;
 
