@@ -7,6 +7,7 @@
 
 int main() {
     char nomeArquivo[30];
+<<<<<<< HEAD
     int opcao, matricula, ordem, teste, busca;
     struct timeval inicio, fim;
     long menorTempoArv = 1000000, maiorTempoArv = -1, tempoTotalArv, tempo;
@@ -25,6 +26,14 @@ int main() {
             printf("Ordem invalida!\n");
         }
     }
+=======
+    int opcao, matricula, ordem;
+
+    gerarRegistros();
+
+    printf("Informe a ordem da B-Tree: ");
+    scanf("%d", &ordem);
+>>>>>>> 420472fec158129bca815a91c490a3874d2ac9d0
 
     no *raiz = NULL;
 
@@ -39,8 +48,14 @@ int main() {
     lerRegistros(arv, nomeArquivo);
     printf("Registros inseridos na B-Tree!\n");
 
+<<<<<<< HEAD
+=======
+    registro *reg;
+
+>>>>>>> 420472fec158129bca815a91c490a3874d2ac9d0
     while (1) {
         printf("\nMenu:\n");
+        printf("0. Inserir registros\n");
         printf("1. Procurar elemento\n");
         printf("2. Remover registro\n");
         printf("3. Calcular métricas\n");
@@ -48,12 +63,27 @@ int main() {
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
+<<<<<<< HEAD
         switch (opcao){
             case 1:
                 printf("Informe a matrícula a ser pesquisada: ");
                 scanf("%d", &matricula);
                 raiz = buscaElemento(getRaiz(arv), matricula);
                 if (raiz != NULL) {
+=======
+        switch (opcao) {
+            case 0:
+                printf("Informe o nome do arquivo de registros: ");
+                scanf("%s", nomeArquivo);
+                lerRegistros(arv, nomeArquivo);
+                printf("Registros inseridos na B-Tree!\n");
+                break;
+            case 1:
+                printf("Informe a matrícula a ser pesquisada: ");
+                scanf("%d", &matricula);
+                reg = buscar(arv, matricula);
+                if (reg != NULL) {
+>>>>>>> 420472fec158129bca815a91c490a3874d2ac9d0
                     printf("Chave encontrada na B-Tree!\n");
                 } else {
                     printf("Chave nao encontrada na B-Tree!\n");
@@ -63,12 +93,17 @@ int main() {
             case 2:
                 printf("Informe a chave a ser removida: ");
                 scanf("%d", &matricula);
+<<<<<<< HEAD
                 teste = removeElemento(arv, matricula);
                 if(teste == 1){
                     printf("Chave removida da B-Tree!\n");
                 }else if(teste == -1){
                     printf("Chave nao encontrada na B-Tree!\n");
                 }
+=======
+                removerElemento(arv, matricula);
+                printf("Chave removida da B-Tree!\n");
+>>>>>>> 420472fec158129bca815a91c490a3874d2ac9d0
                 break;
 
             case 3:
