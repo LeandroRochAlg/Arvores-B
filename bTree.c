@@ -5,7 +5,6 @@
 #include "bTree.h"
 
 struct no {
-    int* chaves;
     registro* registros;
     no** filhos;
     no* pai;

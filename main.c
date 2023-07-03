@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/time.h>
 #include <time.h>
 #include "bTree.h"
@@ -122,6 +121,7 @@ int main() {
 
             case 4:
                 printf("Saindo...\n");
+                free(arv);
                 return 0;
 
             default:
