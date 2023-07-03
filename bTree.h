@@ -57,6 +57,11 @@ no *merge(no *noDesbal, int posPai);
 //Se o status for "i", a função deve inserir todos os elementos do arquivo na árvore
 //Se o status for "r", a função deve remover todos os elementos do arquivo da árvore
 void manipulaBTree(btree *arvore, char *nomeArquivo, char status);
-  no* getRaiz(btree *tree);
+
+no* getRaiz(btree *tree);
+
+int buscarChave(no* raiz, int valor);
+
+void generateDataFile(const char* filename, int maxRegisters);
 
 #endif //LISTA_9_BTREE_H

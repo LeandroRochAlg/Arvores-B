@@ -3,29 +3,7 @@
 #include <time.h>
 #include "btree.h"
 
-#define MAX_REGISTERS 10
-
-// Função para gerar um número aleatório entre min e max (inclusive)
-int getRandomNumber(int min, int max) {
-    return min + rand() % (max - min + 1);
-}
-
-// Função para gerar um arquivo com dados aleatórios
-void generateDataFile() {
-    FILE* file = fopen("data.txt", "w");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
-
-    srand(time(NULL));
-
-    for (int i = 0; i < MAX_REGISTERS; i++) {
-        fprintf(file, "%d\n", getRandomNumber(1, MAX_REGISTERS));
-    }
-
-    fclose(file);
-}
+#define MAX_REGISTERS 20
 
 int main() {
     int option;
@@ -38,6 +16,7 @@ int main() {
         printf("2. Procurar elementos\n");
         printf("3. Remover registro\n");
         printf("4. Sair\n");
+        printf("5. Testar árvore\n");
         printf("Escolha uma opção: ");
         scanf("%d", &option);
 
@@ -63,11 +42,11 @@ int main() {
                     scanf("%d", &value);
 
                     clock_t start = clock();
-                    no *found = buscaElemento(raiz, value);
+                    int found = buscarChave(raiz, value);
                     clock_t end = clock();
                     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-                    if (found) {
+                    if (found != -1) {
                         printf("Valor encontrado na B-Tree.\n");
                     } else {
                         printf("Valor não encontrado na B-Tree.\n");
@@ -90,10 +69,12 @@ int main() {
                     clock_t end = clock();
                     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-                    if (removed) {
+                    if (removed != -1) {
                         printf("Registro removido com sucesso.\n");
+                        imprimeArvore(raiz, 0);
                     } else {
                         printf("Registro não encontrado na B-Tree.\n");
+                        imprimeArvore(raiz, 0);
                     }
 
                     printf("Tempo de remoção: %.6f segundos\n", time);
@@ -102,6 +83,12 @@ int main() {
             case 4:
                 // Sair
                 printf("Encerrando o programa.\n");
+                break;
+
+            case 5:
+                //testar
+                generateDataFile;
+                imprimeArvore(raiz, 0);
                 break;
             default:
                 printf("Opção inválida.\n");

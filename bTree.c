@@ -23,6 +23,7 @@
 // <-- Bibliotecas e extensões -->
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "btree.h"
 
 
@@ -86,7 +87,7 @@ no* alocaNo(int ordem) {
 
 	// Atribui valores para o nó
     novo->ocupacao = 0;
-	  novo->pai = NULL;
+    novo->pai = NULL;
     novo->folha = 1;
 
 	// Retorna o nó
@@ -143,7 +144,7 @@ btree* criaArvore(int m) {
 //Função que retorna a raiz da árvore
 no* retornaRaiz(btree* arvore) {
 	return arvore->raiz;
-	
+
 }
 
 
@@ -919,6 +920,14 @@ void manipulaBTree(btree* arvore, char* nomeArquivo, char status) {
         
     }
 
+    // Verifica se o arquivo está vazio
+    if (fgetc(arquivo) == EOF) {
+        // O arquivo está vazio, chama a função generateDataFile
+        fclose(arquivo);
+        generateDataFile(nomeArquivo, arvore->ordem); // Chamada para a função que gera um novo arquivo
+        return;
+    }
+
     // Insere ou remove os
     // dados na árvore
 	while(!feof(arquivo)) {
@@ -953,6 +962,45 @@ void manipulaBTree(btree* arvore, char* nomeArquivo, char status) {
 	fclose(arquivo);
 
 }
-  no* getRaiz(btree *tree){
+no* getRaiz(btree *tree){
     return tree->raiz;
-  }
+}
+
+// Função que retorna a chave do elemento encontrado na árvore
+int buscarChave(no* raiz, int valor) {
+    no* noEncontrado = buscaElemento(raiz, valor);
+
+    if (noEncontrado != NULL) {
+        // O elemento foi encontrado, retorna a chave correspondente
+        for (int i = 0; i < noEncontrado->ocupacao; i++) {
+            if (noEncontrado->chaves[i] == valor) {
+                return noEncontrado->chaves[i];
+            }
+        }
+    }
+
+    // Se o elemento não for encontrado, retorna um valor inválido (-1 neste exemplo)
+    return -1;
+}
+
+// Função para gerar um número aleatório entre min e max (inclusive)
+int getRandomNumber(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
+
+// Função para gerar um arquivo com dados aleatórios
+void generateDataFile(const char* filename, int maxRegisters) {
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    srand(time(NULL));
+
+    for (int i = 0; i < maxRegisters; i++) {
+        fprintf(file, "%d\n", getRandomNumber(1, maxRegisters));
+    }
+
+    fclose(file);
+}
